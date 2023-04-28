@@ -1,0 +1,50 @@
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text;
+using System.Threading.Tasks;
+
+class Program
+{
+    static async Task Main(string[] args)
+    {
+        // Встановлення кодування та кодування консолі для української мови
+        Console.OutputEncoding = Encoding.UTF8;
+
+        // Створення об'єкту HttpClient для виконання HTTP-запитів
+        using var client = new HttpClient();
+
+        // Зчитування валютного коду криптовалюти з консолі
+        Console.Write("Введіть валютний код криптовалюти: ");
+        var currencyCode = Console.ReadLine();
+
+        // Формування URL-адреси для запиту до API
+        var apiUrl = $"https://api.coinpaprika.com/v1/coins/{currencyCode}";
+
+        // Виконання GET-запиту до API та отримання відповіді
+        var response = await client.GetAsync(apiUrl);
+
+        if (response.IsSuccessStatusCode)
+        {
+            // Зчитування відповіді в форматі JSON та отримання інформації про криптовалюту
+            var cryptoInfo = await response.Content.ReadFromJsonAsync<CryptoInfo>();
+
+            // Виведення інформації про криптовалюту в консоль
+            Console.WriteLine($"Назва криптовалюти: {cryptoInfo.Name}");
+            Console.WriteLine($"Символ: {cryptoInfo.Symbol}");
+            Console.WriteLine($"Опис: {cryptoInfo.Description}");
+        }
+        else
+        {
+            Console.WriteLine("Неможливо отримати інформацію про криптовалюту");
+        }
+    }
+
+    // Клас для зберігання інформації про криптовалюту з відповіді API
+    public class CryptoInfo
+    {
+        public string Name { get; set; }
+        public string Symbol { get; set; }
+        public string Description { get; set; }
+    }
+}
